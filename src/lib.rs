@@ -1,7 +1,9 @@
+use wasm_bindgen::Clamped;
 use std::f64;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::console;
+use web_sys::{ImageData};
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.
@@ -10,6 +12,22 @@ use web_sys::console;
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+
+
+fn get_julia_set(width: u32, height: u32) -> Vec<u8> {
+    let mut data = Vec::new();
+    for x in 0..width {
+        for y in 0..height {
+            data.push(x as u8);
+            data.push(y as u8);
+            data.push((x + y) as u8);
+            data.push(255);
+        }
+    }
+
+    data
+}
 
 
 // This is like the `main` function, except for JavaScript.
@@ -62,6 +80,17 @@ pub fn main_js() -> Result<(), JsValue> {
         .unwrap();
 
     context.stroke();
+
+    let mut data = get_julia_set(256, 256);
+
+    let data = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&mut data), 256, 256)?;
+    context.put_image_data(&data, 200.0, 0.0)?;
+    // var image_data = ctx.createImageData(canvas.width, canvas.height);
+    // var data = image_data.data;
+
+
+
+
 
     console::log_1(&JsValue::from_str("Hello world22222!"));
 
