@@ -37,6 +37,7 @@ impl Vec3 {
 }
 
 // why &Vec3
+// reference https://stackoverflow.com/questions/24594374/how-can-an-operator-be-overloaded-for-different-rhs-types-and-return-values
 
 impl Add for &Vec3 {
     type Output = Vec3;
