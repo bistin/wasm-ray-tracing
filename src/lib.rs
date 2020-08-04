@@ -21,11 +21,10 @@ fn get_julia_set(width: u32, height: u32) -> Vec<u8> {
         for y in 0..height {
             data.push(x as u8);
             data.push(y as u8);
-            data.push((x + y) as u8);
+            data.push(((x + y)/2) as u8);
             data.push(255);
         }
     }
-
     data
 }
 
