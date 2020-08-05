@@ -1,9 +1,14 @@
+pub mod utils;
+pub mod vec3;
+
 use wasm_bindgen::Clamped;
 use std::f64;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::console;
 use web_sys::{ImageData};
+
+
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.
@@ -12,8 +17,6 @@ use web_sys::{ImageData};
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-
 
 fn get_julia_set(width: u32, height: u32) -> Vec<u8> {
     let mut data = Vec::new();
@@ -27,7 +30,6 @@ fn get_julia_set(width: u32, height: u32) -> Vec<u8> {
     }
     data
 }
-
 
 // This is like the `main` function, except for JavaScript.
 #[wasm_bindgen(start)]
