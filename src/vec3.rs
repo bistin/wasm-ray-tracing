@@ -9,6 +9,12 @@ pub struct Vec3 {
     pub z: f32
 }
 
+impl std::fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "(value x: {}, value y: {}, value z: {})", self.x, self.y, self.z)
+    }
+}
+
 impl Vec3 {
     // Length
     pub fn length(&self) -> f32 {
