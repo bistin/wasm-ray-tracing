@@ -19,50 +19,37 @@ use web_sys::{ImageData};
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-fn get_julia_set(width: u32, height: u32) -> Vec<u8> {
-    let mut data = Vec::new();
-    for x in 0..width {
-        for y in 0..height {
-            data.push((x/2) as u8);
-            data.push((y/2) as u8);
-            data.push(((x + y)/4) as u8);
-            data.push(255);
-        }
-    }
-    data
+fn color(r: &Ray) -> Vec3 {
+    let unit_direction = r.direction.unit_vector();
+    let t = 0.5 * (unit_direction.y + 1.0);
+    Vec3{x:1.0, y: 1.0, z:1.0} * (1.0 - t)  + Vec3{x:0.5, y: 0.7, z:1.0} * (t) 
 }
 
+
 fn plot(width: u32, height: u32) -> Vec<u8> {
-    let nx = 200;
-    let ny = 100;
+    let nx = width;
+    let ny = height;
     let lower_left_corner = Vec3{x: -2.0, y: -1.0, z: -1.0};
     let horizontal = Vec3{x: 4.0, y: 0.0, z: 0.0};
     let vertical = Vec3{x: 0.0, y: 2.0, z: 0.0};
     let origin = Vec3{x: 0.0, y: 0.0, z: 0.0};
-
-    for j in 0..ny {
+    let mut data = Vec::new();
+    for nj in 0..ny {
+        let j = ny - nj - 1;
         for i in 0..nx {
             let u = (i as f32) / (nx as f32);
             let v = (j as f32) / (ny as f32);
             let r = Ray{ origin: origin, direction: lower_left_corner + (horizontal * u)  + vertical * v  };
+            let col = color(&r) * 255.0;
 
-
-        }
-    }
-
-
-
-
-
-    let mut data = Vec::new();
-    for x in 0..width {
-        for y in 0..height {
-            data.push((x/2) as u8);
-            data.push((y/2) as u8);
-            data.push(((x + y)/4) as u8);
+            // console::log_1(&JsValue::from_str(&col.to_str()));
+            data.push((col.x) as u8);
+            data.push((col.y) as u8);
+            data.push((col.z) as u8);
             data.push(255);
         }
     }
+
     data
 }
 
@@ -78,8 +65,8 @@ pub fn main_js() -> Result<(), JsValue> {
 
     // Your code goes here!
     // config variables
-    let width = 600;
-    let height = 400;
+    let width = 400;
+    let height = 200;
     
     //console::
     let document = web_sys::window().unwrap().document().unwrap();
@@ -98,7 +85,7 @@ pub fn main_js() -> Result<(), JsValue> {
 
 
 
-    let mut data = get_julia_set(width, height);
+    let mut data = plot(width, height);
 
     let data = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&mut data), width, height)?;
     context.put_image_data(&data, 0.0, 0.0)?;
