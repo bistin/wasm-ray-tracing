@@ -2,7 +2,6 @@ pub mod utils;
 pub mod vec3;
 
 use wasm_bindgen::Clamped;
-use std::f64;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::console;
@@ -38,9 +37,6 @@ pub fn main_js() -> Result<(), JsValue> {
     // It's disabled in release mode so it doesn't bloat up the file size.
     #[cfg(debug_assertions)]
     console_error_panic_hook::set_once();
-
-
-    // Your code goes here!
     
     //console::
     let document = web_sys::window().unwrap().document().unwrap();
@@ -57,43 +53,39 @@ pub fn main_js() -> Result<(), JsValue> {
         .dyn_into::<web_sys::CanvasRenderingContext2d>()
         .unwrap();
 
-    context.begin_path();
-
-    // Draw the outer circle.
-    context
-        .arc(75.0, 75.0, 50.0, 0.0, f64::consts::PI * 2.0)
-        .unwrap();
-
-    // Draw the mouth.
-    context.move_to(110.0, 75.0);
-    context.arc(75.0, 75.0, 35.0, 0.0, f64::consts::PI).unwrap();
-
-    // Draw the left eye.
-    context.move_to(65.0, 65.0);
-    context
-        .arc(60.0, 65.0, 5.0, 0.0, f64::consts::PI * 2.0)
-        .unwrap();
-
-    // Draw the right eye.
-    context.move_to(95.0, 65.0);
-    context
-        .arc(90.0, 65.0, 5.0, 0.0, f64::consts::PI * 2.0)
-        .unwrap();
-
-    context.stroke();
+  
 
     let mut data = get_julia_set(256, 256);
 
     let data = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&mut data), 256, 256)?;
     context.put_image_data(&data, 200.0, 0.0)?;
-    // var image_data = ctx.createImageData(canvas.width, canvas.height);
-    // var data = image_data.data;
-
-
-
-
-
     console::log_1(&JsValue::from_str("Hello world22222!"));
 
     Ok(())
 }
+
+
+  // context.begin_path();
+
+    // // Draw the outer circle.
+    // context
+    //     .arc(75.0, 75.0, 50.0, 0.0, f64::consts::PI * 2.0)
+    //     .unwrap();
+
+    // // Draw the mouth.
+    // context.move_to(110.0, 75.0);
+    // context.arc(75.0, 75.0, 35.0, 0.0, f64::consts::PI).unwrap();
+
+    // // Draw the left eye.
+    // context.move_to(65.0, 65.0);
+    // context
+    //     .arc(60.0, 65.0, 5.0, 0.0, f64::consts::PI * 2.0)
+    //     .unwrap();
+
+    // // Draw the right eye.
+    // context.move_to(95.0, 65.0);
+    // context
+    //     .arc(90.0, 65.0, 5.0, 0.0, f64::consts::PI * 2.0)
+    //     .unwrap();
+
+    // context.stroke();

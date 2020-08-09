@@ -39,7 +39,7 @@ impl Vec3 {
 // why &Vec3
 // reference https://stackoverflow.com/questions/24594374/how-can-an-operator-be-overloaded-for-different-rhs-types-and-return-values
 
-impl Add for &Vec3 {
+impl Add for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -47,7 +47,7 @@ impl Add for &Vec3 {
     }
 }
 
-impl Neg for &Vec3 {
+impl Neg for Vec3 {
     type Output = Vec3;
 
     fn neg(self) -> Self::Output {
@@ -55,7 +55,7 @@ impl Neg for &Vec3 {
     }
 }
 
-impl Sub for &Vec3 {
+impl Sub for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -63,7 +63,7 @@ impl Sub for &Vec3 {
     }
 }
 
-impl Mul<f32> for &Vec3 {
+impl Mul<f32> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, rhs: f32) -> Self::Output {
@@ -72,6 +72,14 @@ impl Mul<f32> for &Vec3 {
 }
 
 impl Div<f32> for &Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Vec3 {x: self.x / rhs, y: self.y / rhs, z: self.z / rhs}
+    }
+}
+
+impl Div<f32> for Vec3 {
     type Output = Vec3;
 
     fn div(self, rhs: f32) -> Self::Output {
