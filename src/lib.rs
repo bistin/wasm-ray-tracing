@@ -32,19 +32,33 @@ bool hit_sphere(const point3& center, double radius, const ray& r) {
 } */
 
 
-fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> bool {
+fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> f32 {
     let oc = r.origin - *center;
     let a = r.direction.dot(&r.direction);
     let b = oc.dot(&r.direction) * 2.0;
     let c = oc.dot(&oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.0
+    //discriminant > 0.0
+
+    if discriminant < 0.0 {
+         -1.0
+    } else {
+        (-b - discriminant.sqrt() ) / (2.0*a)
+    }
+
 }
 
 
+/*
+vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
+        return 0.5*color(N.x()+1, N.y()+1, N.z()+1);
+*/
+
 fn color(r: &Ray) -> Color {
-    if hit_sphere(&Vec3{x:0.0, y: 0.0, z:-1.0}, 0.5, r) {
-        return Color{r:1.0, g: 0.0, b:0.0} 
+    let t = hit_sphere(&Vec3{x:0.0, y: 0.0, z:-1.0}, 0.5, r);
+    if t > 0.0 {
+        let n = (r.point_at_parameter(t) - Vec3{x:0.0, y: 0.0, z:-1.0}).unit_vector();
+        return Color{r: n.x + 1.0, g: n.y + 1.0, b: n.z + 1.0}  * 0.5
     }
        
     let unit_direction = r.direction.unit_vector();
