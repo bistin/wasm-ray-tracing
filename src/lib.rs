@@ -19,7 +19,32 @@ use web_sys::{ImageData};
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+/*
+bool hit_sphere(const point3& center, double radius, const ray& r) {
+    vec3 oc = r.origin() - center;
+    auto a = dot(r.direction(), r.direction());
+    auto b = 2.0 * dot(oc, r.direction());
+    auto c = dot(oc, oc) - radius*radius;
+    auto discriminant = b*b - 4*a*c;
+    return (discriminant > 0);
+} */
+
+
+fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> bool {
+    let oc = r.origin - *center;
+    let a = r.direction.dot(&r.direction);
+    let b = oc.dot(&r.direction) * 2.0;
+    let c = oc.dot(&oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    discriminant > 0.0
+}
+
+
 fn color(r: &Ray) -> Vec3 {
+    if hit_sphere(&Vec3{x:0.0, y: 0.0, z:-1.0}, 0.5, r) {
+        return Vec3{x:1.0, y: 0.0, z:0.0} 
+    }
+       
     let unit_direction = r.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
     Vec3{x:1.0, y: 1.0, z:1.0} * (1.0 - t)  + Vec3{x:0.5, y: 0.7, z:1.0} * (t) 
