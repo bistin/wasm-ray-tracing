@@ -1,9 +1,11 @@
 pub mod utils;
 pub mod vec3;
 pub mod ray;
+pub mod color;
 
 use crate::vec3::Vec3;
 use crate::ray::Ray;
+use crate::color::Color;
 use wasm_bindgen::Clamped;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -40,14 +42,14 @@ fn hit_sphere(center: &Vec3, radius: f32, r: &Ray) -> bool {
 }
 
 
-fn color(r: &Ray) -> Vec3 {
+fn color(r: &Ray) -> Color {
     if hit_sphere(&Vec3{x:0.0, y: 0.0, z:-1.0}, 0.5, r) {
-        return Vec3{x:1.0, y: 0.0, z:0.0} 
+        return Color{r:1.0, g: 0.0, b:0.0} 
     }
        
     let unit_direction = r.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
-    Vec3{x:1.0, y: 1.0, z:1.0} * (1.0 - t)  + Vec3{x:0.5, y: 0.7, z:1.0} * (t) 
+    Color{r:1.0, g: 1.0, b:1.0} * (1.0 - t)  + Color{r:0.5, g: 0.7, b:1.0} * (t) 
 }
 
 
@@ -68,13 +70,12 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
             let col = color(&r) * 255.0;
 
             // console::log_1(&JsValue::from_str(&col.to_str()));
-            data.push((col.x) as u8);
-            data.push((col.y) as u8);
-            data.push((col.z) as u8);
+            data.push((col.r) as u8);
+            data.push((col.g) as u8);
+            data.push((col.b) as u8);
             data.push(255);
         }
     }
-
     data
 }
 
