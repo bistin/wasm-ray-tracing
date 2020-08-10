@@ -9,6 +9,12 @@ pub struct Vec3 {
     pub z: f32
 }
 
+impl std::fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "(value x: {}, value y: {}, value z: {})", self.x, self.y, self.z)
+    }
+}
+
 impl Vec3 {
     // Length
     pub fn length(&self) -> f32 {
@@ -34,11 +40,17 @@ impl Vec3 {
             z: self.x*rhs.y - rhs.x * self.y
         }
     }
+
+    pub fn to_str(&self) -> String {
+    
+        format!("(value x: {}, value y: {}, value z: {})", self.x, self.y, self.z)
+    }
 }
 
 // why &Vec3
+// reference https://stackoverflow.com/questions/24594374/how-can-an-operator-be-overloaded-for-different-rhs-types-and-return-values
 
-impl Add for &Vec3 {
+impl Add for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -46,7 +58,7 @@ impl Add for &Vec3 {
     }
 }
 
-impl Neg for &Vec3 {
+impl Neg for Vec3 {
     type Output = Vec3;
 
     fn neg(self) -> Self::Output {
@@ -54,7 +66,7 @@ impl Neg for &Vec3 {
     }
 }
 
-impl Sub for &Vec3 {
+impl Sub for Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -62,7 +74,7 @@ impl Sub for &Vec3 {
     }
 }
 
-impl Mul<f32> for &Vec3 {
+impl Mul<f32> for Vec3 {
     type Output = Vec3;
 
     fn mul(self, rhs: f32) -> Self::Output {
@@ -71,6 +83,14 @@ impl Mul<f32> for &Vec3 {
 }
 
 impl Div<f32> for &Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Vec3 {x: self.x / rhs, y: self.y / rhs, z: self.z / rhs}
+    }
+}
+
+impl Div<f32> for Vec3 {
     type Output = Vec3;
 
     fn div(self, rhs: f32) -> Self::Output {
