@@ -2,10 +2,13 @@ pub mod utils;
 pub mod vec3;
 pub mod ray;
 pub mod color;
+pub mod hittable;
+pub mod sphere;
 
 use crate::vec3::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
+
 use wasm_bindgen::Clamped;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
