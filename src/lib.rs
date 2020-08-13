@@ -6,6 +6,9 @@ pub mod hittable;
 pub mod sphere;
 pub mod hittable_list;
 
+use crate::hittable_list::HittableList;
+use crate::sphere::Sphere;
+use crate::hittable::Hittable;
 use crate::vec3::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
@@ -70,6 +73,25 @@ fn color(r: &Ray) -> Color {
     Color{r:1.0, g: 1.0, b:1.0} * (1.0 - t)  + Color{r:0.5, g: 0.7, b:1.0} * (t) 
 }
 
+/* color ray_color(const ray& r, const hittable& world) {
+    hit_record rec;
+    if (world.hit(r, 0, infinity, rec)) {
+        return 0.5 * (rec.normal + color(1,1,1));
+    }
+    vec3 unit_direction = unit_vector(r.direction());
+    auto t = 0.5*(unit_direction.y() + 1.0);
+    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
+}*/
+
+fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
+    if let Some(hitt) = world.hit(r, 0.0, f32::INFINITY) {
+        let t = (hitt.normal + Vec3{x:1.0, y: 1.0, z:1.0}) * 0.5;
+        return Color{r: t.x, g: t.y, b: t.z }
+    }
+    let unit_direction = r.direction.unit_vector();
+    let t = 0.5 * (unit_direction.y + 1.0);
+    Color{r:1.0, g: 1.0, b:1.0} * (1.0 - t)  + Color{r:0.5, g: 0.7, b:1.0} * (t) 
+}
 
 fn plot(width: u32, height: u32) -> Vec<u8> {
     let nx = width;
@@ -79,13 +101,33 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     let vertical = Vec3{x: 0.0, y: 2.0, z: 0.0};
     let origin = Vec3{x: 0.0, y: 0.0, z: 0.0};
     let mut data = Vec::new();
+
+
+    let mut hitables: Vec<Box<dyn Hittable>> = Vec::new();
+
+    hitables.push(Box::new(Sphere {
+        center: Vec3{x: 0.0, y: 0.0, z: -1.0},
+        radius: 0.5,
+    }));
+
+    hitables.push(Box::new(Sphere {
+        center: Vec3{x: 0.0, y: -100.5, z: -1.0},
+        radius: 100.0,
+    }));
+
+    let world = HittableList{hitables};
+
+
     for nj in 0..ny {
         let j = ny - nj - 1;
         for i in 0..nx {
             let u = (i as f32) / (nx as f32);
             let v = (j as f32) / (ny as f32);
             let r = Ray{ origin: origin, direction: lower_left_corner + (horizontal * u)  + vertical * v  };
-            let col = color(&r) * 255.0;
+            
+            //let r = ray_color(&r, &world);
+            
+            let col = ray_color(&r, &world) * 255.0;
 
             // console::log_1(&JsValue::from_str(&col.to_str()));
             data.push((col.r) as u8);
