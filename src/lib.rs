@@ -4,6 +4,7 @@ pub mod ray;
 pub mod color;
 pub mod hittable;
 pub mod sphere;
+pub mod hittable_list;
 
 use crate::vec3::Vec3;
 use crate::ray::Ray;
