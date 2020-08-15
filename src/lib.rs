@@ -87,34 +87,23 @@ vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
     return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
 }*/
 
-fn ray_color(r: &Ray, world: &dyn Hittable) -> Color {
-    if let Some(hitt) = world.hit(r, 0.0, f32::INFINITY) {
-        let t = (hitt.normal + Vec3{x:1.0, y: 1.0, z:1.0}) * 0.5;
-        return Color{r: t.x, g: t.y, b: t.z }
+fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
+    if depth <= 0 {
+        Color{r: 0.0, g: 0.0, b: 0.0};
+    }
+
+    if let Some(hitt) = world.hit(r, 0.001, f32::INFINITY) {
+        let t = hitt.p + hitt.normal + Vec3::random_unit_vector();
+        //let t = (hitt.normal + Vec3{x:1.0, y: 1.0, z:1.0}) * 0.5;
+        //return Color{r: t.x, g: t.y, b: t.z }
+        return ray_color(&Ray{
+            origin: hitt.p, 
+            direction: t - hitt.p}, world, depth - 1 ) * 0.5;
     }
     let unit_direction = r.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
     Color{r:1.0, g: 1.0, b:1.0} * (1.0 - t)  + Color{r:0.5, g: 0.7, b:1.0} * (t) 
 }
-
-/* 
-void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
-    auto r = pixel_color.x();
-    auto g = pixel_color.y();
-    auto b = pixel_color.z();
-
-    // Divide the color by the number of samples.
-    auto scale = 1.0 / samples_per_pixel;
-    r *= scale;
-    g *= scale;
-    b *= scale;
-
-    // Write the translated [0,255] value of each color component.
-    out << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << ' '
-        << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << ' '
-        << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << '\n';
-}
-*/
 
 fn  clamp(input: f32, min: f32, max: f32) -> f32 {
     if input < min { 
@@ -129,9 +118,9 @@ fn  clamp(input: f32, min: f32, max: f32) -> f32 {
 
 fn write_color(data: &mut Vec<u8>, color :&Color, samples_per_pixel: f32) {
     let scale = 1.0 / samples_per_pixel;
-    let r = clamp(color.r * scale, 0.0, 0.999);
-    let g = clamp(color.g * scale, 0.0, 0.999);
-    let b = clamp(color.b * scale, 0.0, 0.999);
+    let r = clamp((color.r * scale).sqrt(), 0.0, 0.999);
+    let g = clamp((color.g * scale).sqrt(), 0.0, 0.999);
+    let b = clamp((color.b * scale).sqrt(), 0.0, 0.999);
 
     data.push((r * 255.0) as u8);
     data.push((g * 255.0) as u8);
@@ -145,7 +134,8 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 8.0;
+    let samples_per_pixel = 3.0;
+    let max_depth = 1;
     let mut data: Vec<u8> = Vec::new();
 
     // World
@@ -174,7 +164,7 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
                 let u = ((i as f32) + rng.gen_range(0.0, 1.0))  / (nx as f32);
                 let v = ((j as f32) + rng.gen_range(0.0, 1.0)) / (ny as f32);
                 let r = cam.get_ray(u, v);
-                col = ray_color(&r, &world) + col;
+                col = ray_color(&r, &world, max_depth) + col;
             }
             write_color(&mut data, &col, samples_per_pixel);
         }
@@ -193,8 +183,8 @@ pub fn main_js() -> Result<(), JsValue> {
 
     // Your code goes here!
     // config variables
-    let width = 400;
-    let height = 200;
+    let width = 300;
+    let height = 150;
 
     //console::
     let document = web_sys::window().unwrap().document().unwrap();
