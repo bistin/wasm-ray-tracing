@@ -6,6 +6,7 @@ pub mod hittable;
 pub mod sphere;
 pub mod hittable_list;
 pub mod camera;
+pub mod material;
 
 use crate::camera::Camera;
 use crate::hittable_list::HittableList;
@@ -14,13 +15,13 @@ use crate::hittable::Hittable;
 use crate::vec3::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
-
+use crate::material::{Lambertian,Metal,Material};
 use rand::Rng;
 
 use wasm_bindgen::Clamped;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::console;
+// use web_sys::console;
 use web_sys::{ImageData};
 
 
@@ -77,14 +78,16 @@ vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
 //     Color{r:1.0, g: 1.0, b:1.0} * (1.0 - t)  + Color{r:0.5, g: 0.7, b:1.0} * (t) 
 // }
 
-/* color ray_color(const ray& r, const hittable& world) {
-    hit_record rec;
-    if (world.hit(r, 0, infinity, rec)) {
-        return 0.5 * (rec.normal + color(1,1,1));
+/* 
+
+    if (world.hit(r, 0.001, infinity, rec)) {
+        ray scattered;
+        color attenuation;
+        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+            return attenuation * ray_color(scattered, world, depth-1);
+        return color(0,0,0);
     }
-    vec3 unit_direction = unit_vector(r.direction());
-    auto t = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
+
 }*/
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
@@ -94,11 +97,20 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
 
     if let Some(hitt) = world.hit(r, 0.001, f32::INFINITY) {
         let t = hitt.p + hitt.normal + Vec3::random_in_hemisphere(&hitt.normal);
-        //let t = (hitt.normal + Vec3{x:1.0, y: 1.0, z:1.0}) * 0.5;
-        //return Color{r: t.x, g: t.y, b: t.z }
-        return ray_color(&Ray{
-            origin: hitt.p, 
-            direction: t - hitt.p}, world, depth - 1 ) * 0.5;
+        if let Some(scatt) = hitt.material.scatter(r, &hitt) {
+            let a = ray_color(&scatt.scattered, world, depth -1);
+            let b = scatt.attenuation;
+            return Color{
+                r: a.r * b.r,
+                g: a.g * b.g,
+                b: a.b * b.b
+            }
+        }
+        return Color{
+            r: 0.0,
+            g: 0.0,
+            b: 0.0
+        }
     }
     let unit_direction = r.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
@@ -134,20 +146,46 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 5.0;
-    let max_depth = 3;
+    let samples_per_pixel = 1.0;
+    let max_depth = 1;
     let mut data: Vec<u8> = Vec::new();
 
     // World
+    /*
+        auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
+    auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8));
+    auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2));
+    */
+
+    let material_ground = Lambertian{ albedo: Color{r: 0.8, g: 0.8, b: 0.0 } };
+    let material_center = Lambertian{ albedo: Color{r: 0.7, g: 0.3, b: 0.3 } };
+    let material_left   = Metal{ albedo: Color{r: 0.8, g: 0.8, b: 0.8 } };
+    let material_right  = Metal{ albedo: Color{r: 0.8, g: 0.6, b: 0.2 } };
+
     let mut hitables: Vec<Box<dyn Hittable>> = Vec::new();
     hitables.push(Box::new(Sphere {
         center: Vec3{x: 0.0, y: 0.0, z: -1.0},
         radius: 0.5,
+        material: Box::new(material_center)
     }));
 
     hitables.push(Box::new(Sphere {
         center: Vec3{x: 0.0, y: -100.5, z: -1.0},
         radius: 100.0,
+        material: Box::new(material_ground)
+    }));
+
+    hitables.push(Box::new(Sphere {
+        center: Vec3{x: -1.0, y: 0.0, z: -1.0},
+        radius: 0.5,
+        material: Box::new(material_left)
+    }));
+
+    hitables.push(Box::new(Sphere {
+        center: Vec3{x: 1.0, y: 0.0, z: -1.0},
+        radius: 0.5,
+        material: Box::new(material_right)
     }));
 
     let world = HittableList{hitables};
@@ -183,8 +221,8 @@ pub fn main_js() -> Result<(), JsValue> {
 
     // Your code goes here!
     // config variables
-    let width = 300;
-    let height = 150;
+    let width = 200;
+    let height = 100;
 
     //console::
     let document = web_sys::window().unwrap().document().unwrap();

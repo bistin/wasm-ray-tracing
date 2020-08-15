@@ -78,7 +78,7 @@ impl Vec3 {
 
     pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
         let in_unit_sphere = Vec3::random_in_unit_sphere();
-        if(in_unit_sphere.dot(normal) > 0.0) {
+        if in_unit_sphere.dot(normal) > 0.0 {
             return in_unit_sphere;
         } else {
             return in_unit_sphere * -1.0;
@@ -116,6 +116,10 @@ impl Vec3 {
     
         format!("(value x: {}, value y: {}, value z: {})", self.x, self.y, self.z)
     }
+
+    pub fn reflect(self, n: &Vec3) -> Vec3 {
+        return self - n * (self.dot(n) * 2.0);
+    } 
 }
 
 // why &Vec3
@@ -152,6 +156,15 @@ impl Mul<f32> for Vec3 {
         Vec3 {x: self.x * rhs, y: self.y * rhs, z: self.z * rhs}
     }
 }
+
+impl Mul<f32> for &Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Vec3 {x: self.x * rhs, y: self.y * rhs, z: self.z * rhs}
+    }
+}
+
 
 impl Div<f32> for &Vec3 {
     type Output = Vec3;
