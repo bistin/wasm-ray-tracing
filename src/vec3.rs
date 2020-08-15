@@ -40,16 +40,16 @@ impl Vec3 {
         }
     }
 
-    // pub fn random_in_unit_sphere() -> Vec3 {
-    //     let mut p = Vec3::random_range(-1.0, 1.0);
-    //     loop {
-    //         if p.squared_length() < 1.0 {
-    //             break;
-    //         } 
-    //         p = Vec3::random_range(-1.0, 1.0);
-    //     }
-    //     return p;
-    // }
+    pub fn random_in_unit_sphere() -> Vec3 {
+        let mut p = Vec3::random_range(-1.0, 1.0);
+        loop {
+            if p.squared_length() < 1.0 {
+                break;
+            } 
+            p = Vec3::random_range(-1.0, 1.0);
+        }
+        return p;
+    }
     /*
     auto a = random_double(0, 2*pi);
     auto z = random_double(-1, 1);
@@ -65,6 +65,23 @@ impl Vec3 {
             x: r * Math::cos(a) as f32,
             y: r * Math::sin(a) as f32,
             z: z
+        }
+    }
+    /*
+    vec3 random_in_hemisphere(const vec3& normal) {
+        vec3 in_unit_sphere = random_in_unit_sphere();
+        if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+            return in_unit_sphere;
+        else
+            return -in_unit_sphere;
+    }*/
+
+    pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
+        let in_unit_sphere = Vec3::random_in_unit_sphere();
+        if(in_unit_sphere.dot(normal) > 0.0) {
+            return in_unit_sphere;
+        } else {
+            return in_unit_sphere * -1.0;
         }
     }
 }

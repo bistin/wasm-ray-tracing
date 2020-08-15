@@ -93,7 +93,7 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
     }
 
     if let Some(hitt) = world.hit(r, 0.001, f32::INFINITY) {
-        let t = hitt.p + hitt.normal + Vec3::random_unit_vector();
+        let t = hitt.p + hitt.normal + Vec3::random_in_hemisphere(&hitt.normal);
         //let t = (hitt.normal + Vec3{x:1.0, y: 1.0, z:1.0}) * 0.5;
         //return Color{r: t.x, g: t.y, b: t.z }
         return ray_color(&Ray{
@@ -134,8 +134,8 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 3.0;
-    let max_depth = 1;
+    let samples_per_pixel = 5.0;
+    let max_depth = 3;
     let mut data: Vec<u8> = Vec::new();
 
     // World
