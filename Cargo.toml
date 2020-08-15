@@ -17,8 +17,10 @@ crate-type = ["cdylib", "rlib"]
 lto = true
 
 [features]
+# wasm-bindgen = "rand/wasm-bindgen"
 # If you uncomment this line, it will enable `wee_alloc`:
-#default = ["wee_alloc"]
+# default = ["rand"]
+
 
 [dependencies]
 # The `wasm-bindgen` crate provides the bare minimum functionality needed
@@ -43,6 +45,10 @@ features = [
   'Window',
   'ImageData'
 ]
+
+[dependencies.rand]
+version = "0.7"
+features = ["wasm-bindgen"]
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
