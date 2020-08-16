@@ -15,7 +15,7 @@ use crate::hittable::Hittable;
 use crate::vec3::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
-use crate::material::{Lambertian,Metal};
+use crate::material::{Lambertian,Metal,Dielectric};
 use rand::Rng;
 
 use wasm_bindgen::Clamped;
@@ -146,15 +146,16 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 3.0;
-    let max_depth = 10;
+    let samples_per_pixel = 20.0;
+    let max_depth = 50;
     let mut data: Vec<u8> = Vec::new();
 
     // World
     let material_ground = Lambertian{ albedo: Color{r: 0.8, g: 0.8, b: 0.0 } };
-    let material_center = Lambertian{ albedo: Color{r: 0.7, g: 0.3, b: 0.3 } };
-    let material_left   = Metal{ albedo: Color{r: 0.8, g: 0.8, b: 0.8 }, fuzz: 0.3 };
-    let material_right  = Metal{ albedo: Color{r: 0.8, g: 0.6, b: 0.2 }, fuzz: 1.0 };
+    let material_center = Lambertian{ albedo: Color{r: 0.1, g: 0.2, b: 0.5 } };
+    let material_left   = Dielectric{ ref_idx: 1.5}; //Metal{ albedo: Color{r: 0.8, g: 0.8, b: 0.8 }, fuzz: 0.3 };
+    let material_left2   = Dielectric{ ref_idx: 1.5};
+    let material_right  = Metal{ albedo: Color{r: 0.8, g: 0.6, b: 0.2 }, fuzz: 0.0 };
 
     let mut hitables: Vec<Box<dyn Hittable>> = Vec::new();
     hitables.push(Box::new(Sphere {
@@ -173,6 +174,12 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
         center: Vec3{x: -1.0, y: 0.0, z: -1.0},
         radius: 0.5,
         material: Box::new(material_left)
+    }));
+
+    hitables.push(Box::new(Sphere {
+        center: Vec3{x: -1.0, y: 0.0, z: -1.0},
+        radius: -0.4,
+        material: Box::new(material_left2)
     }));
 
     hitables.push(Box::new(Sphere {
@@ -212,8 +219,8 @@ pub fn main_js() -> Result<(), JsValue> {
 
     // Your code goes here!
     // config variables
-    let width = 200;
-    let height = 100;
+    let width = 100;
+    let height = 50;
 
     //console::
     let document = web_sys::window().unwrap().document().unwrap();

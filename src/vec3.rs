@@ -120,12 +120,34 @@ impl Vec3 {
     pub fn reflect(self, n: &Vec3) -> Vec3 {
         return self - n * (self.dot(n) * 2.0);
     } 
+    /*
+vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
+    auto cos_theta = dot(-uv, n);
+    vec3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
+    vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * n;
+    return r_out_perp + r_out_parallel;
+}    
+    */
+    pub fn refract(&self, n: &Vec3, etai_over_etat: f32) -> Vec3 {
+        let cos_theta = (self * -1.0).dot(n);
+        let r_out_perp = (self + &(n * cos_theta)) * etai_over_etat;
+        let r_out_parallel = n * (1.0 - r_out_perp.squared_length()).abs().sqrt() * -1.0;
+        return r_out_perp + r_out_parallel;
+    }
 }
 
 // why &Vec3
 // reference https://stackoverflow.com/questions/24594374/how-can-an-operator-be-overloaded-for-different-rhs-types-and-return-values
 
 impl Add for Vec3 {
+    type Output = Vec3;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Vec3{x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z}
+    }
+}
+
+impl Add for &Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Self) -> Self::Output {
