@@ -146,15 +146,15 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 20.0;
+    let samples_per_pixel = 3.0;
     let max_depth = 10;
     let mut data: Vec<u8> = Vec::new();
 
     // World
     let material_ground = Lambertian{ albedo: Color{r: 0.8, g: 0.8, b: 0.0 } };
     let material_center = Lambertian{ albedo: Color{r: 0.7, g: 0.3, b: 0.3 } };
-    let material_left   = Metal{ albedo: Color{r: 0.8, g: 0.8, b: 0.8 } };
-    let material_right  = Metal{ albedo: Color{r: 0.8, g: 0.6, b: 0.2 } };
+    let material_left   = Metal{ albedo: Color{r: 0.8, g: 0.8, b: 0.8 }, fuzz: 0.3 };
+    let material_right  = Metal{ albedo: Color{r: 0.8, g: 0.6, b: 0.2 }, fuzz: 1.0 };
 
     let mut hitables: Vec<Box<dyn Hittable>> = Vec::new();
     hitables.push(Box::new(Sphere {
@@ -212,8 +212,8 @@ pub fn main_js() -> Result<(), JsValue> {
 
     // Your code goes here!
     // config variables
-    let width = 300;
-    let height = 150;
+    let width = 200;
+    let height = 100;
 
     //console::
     let document = web_sys::window().unwrap().document().unwrap();

@@ -32,7 +32,8 @@ impl Material for Lambertian {
 
 
 pub struct Metal {
-    pub albedo: Color
+    pub albedo: Color,
+    pub fuzz: f32
 }
 
 impl Material for Metal {
@@ -43,7 +44,7 @@ impl Material for Metal {
                 attenuation: self.albedo,
                 scattered: Ray{
                     origin: hit_record.p,
-                    direction: reflected
+                    direction: reflected + Vec3::random_in_unit_sphere() * self.fuzz
                 }
             });
         } else {
