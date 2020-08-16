@@ -20,7 +20,7 @@ impl HitRecord<'_> {
 
 pub trait Hittable {
     // Traits can provide default method definitions.
-    fn hit(&self, r: &Ray, t_min: f32, t_max:f32) -> Option<HitRecord> {
+    fn hit(&self, _r: &Ray, _t_min: f32, _t_max:f32) -> Option<HitRecord> {
         println!("hittable");
         return None;
     }

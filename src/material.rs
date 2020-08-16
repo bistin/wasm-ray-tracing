@@ -19,16 +19,13 @@ pub struct Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<ScatterRecord> {
-
-
+    fn scatter(&self, _r_in: &Ray, hit_record: &HitRecord) -> Option<ScatterRecord> {
         return Some(ScatterRecord{
             attenuation: self.albedo,
             scattered: Ray{
                 origin: hit_record.p,
                 direction: hit_record.normal + Vec3::random_in_unit_sphere()
             }
-
         });
     }
 }
@@ -37,25 +34,6 @@ impl Material for Lambertian {
 pub struct Metal {
     pub albedo: Color
 }
-
-/*
-class metal : public material {
-    public:
-        metal(const color& a) : albedo(a) {}
-
-        virtual bool scatter(
-            const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered
-        ) const override {
-            vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-            scattered = ray(rec.p, reflected);
-            attenuation = albedo;
-            return (dot(scattered.direction(), rec.normal) > 0);
-        }
-
-    public:
-        color albedo;
-};
-*/
 
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<ScatterRecord> {

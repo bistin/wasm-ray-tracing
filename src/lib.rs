@@ -15,13 +15,13 @@ use crate::hittable::Hittable;
 use crate::vec3::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
-use crate::material::{Lambertian,Metal,Material};
+use crate::material::{Lambertian,Metal};
 use rand::Rng;
 
 use wasm_bindgen::Clamped;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::console;
+// use web_sys::console;
 use web_sys::{ImageData};
 
 
@@ -97,10 +97,8 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
     }
 
     if let Some(hitt) = world.hit(r, 0.001, std::f32::INFINITY) {
-        // let t = hitt.p + hitt.normal + Vec3::random_in_hemisphere(&hitt.normal);
         if let Some(scatt) = hitt.material.scatter(r, &hitt) {
             let a = ray_color(&scatt.scattered, world, depth -1);
-            // let a = scatt.attenuation;
             let b = scatt.attenuation;
             return Color{
                 r: a.r * b.r,
@@ -116,17 +114,17 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
     }
     let unit_direction = r.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
-    Color{r:1.0, g: 1.0, b:1.0} * (1.0 - t)  + Color{r:0.5, g: 0.7, b:1.0} * (t) 
+    return Color{r:1.0, g: 1.0, b:1.0} * (1.0 - t)  + Color{r:0.5, g: 0.7, b:1.0} * (t);
 }
 
-fn  clamp(input: f32, min: f32, max: f32) -> f32 {
+fn clamp(input: f32, min: f32, max: f32) -> f32 {
     if input < min { 
         return min 
     }
     if input > max { 
         return max 
     }
-    input  
+    return input;
 }
 
 
@@ -148,18 +146,11 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 50.0;
+    let samples_per_pixel = 20.0;
     let max_depth = 10;
     let mut data: Vec<u8> = Vec::new();
 
     // World
-    /*
-        auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    auto material_center = make_shared<lambertian>(color(0.7, 0.3, 0.3));
-    auto material_left   = make_shared<metal>(color(0.8, 0.8, 0.8));
-    auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2));
-    */
-
     let material_ground = Lambertian{ albedo: Color{r: 0.8, g: 0.8, b: 0.0 } };
     let material_center = Lambertian{ albedo: Color{r: 0.7, g: 0.3, b: 0.3 } };
     let material_left   = Metal{ albedo: Color{r: 0.8, g: 0.8, b: 0.8 } };
@@ -194,13 +185,11 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
 
     // Camera
     let cam = Camera::new();
-
-
     for nj in 0..ny {
         let j = ny - nj - 1;
         for i in 0..nx {
             let mut col = Color{ r:0.0, g:0.0, b: 0.0};
-            for k in 0..(samples_per_pixel as i32) {
+            for _k in 0..(samples_per_pixel as i32) {
                 let u = ((i as f32) + rng.gen_range(0.0, 1.0))  / (nx as f32);
                 let v = ((j as f32) + rng.gen_range(0.0, 1.0)) / (ny as f32);
                 let r = cam.get_ray(u, v);
@@ -247,29 +236,3 @@ pub fn main_js() -> Result<(), JsValue> {
 
     Ok(())
 }
-
-
-// context.begin_path();
-
-// // Draw the outer circle.
-// context
-//     .arc(75.0, 75.0, 50.0, 0.0, f64::consts::PI * 2.0)
-//     .unwrap();
-
-// // Draw the mouth.
-// context.move_to(110.0, 75.0);
-// context.arc(75.0, 75.0, 35.0, 0.0, f64::consts::PI).unwrap();
-
-// // Draw the left eye.
-// context.move_to(65.0, 65.0);
-// context
-//     .arc(60.0, 65.0, 5.0, 0.0, f64::consts::PI * 2.0)
-//     .unwrap();
-
-// // Draw the right eye.
-// context.move_to(95.0, 65.0);
-// context
-//     .arc(90.0, 65.0, 5.0, 0.0, f64::consts::PI * 2.0)
-//     .unwrap();
-
-// context.stroke();
