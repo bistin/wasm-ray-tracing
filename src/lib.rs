@@ -21,7 +21,7 @@ use rand::Rng;
 use wasm_bindgen::Clamped;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-// use web_sys::console;
+use web_sys::console;
 use web_sys::{ImageData};
 
 
@@ -91,14 +91,16 @@ vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
 }*/
 
 fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
+    //console::log_1(&JsValue::from_str( &format!("{}",depth) ));
     if depth <= 0 {
-        Color{r: 0.0, g: 0.0, b: 0.0};
+        return Color{r: 0.0, g: 0.0, b: 0.0};
     }
 
-    if let Some(hitt) = world.hit(r, 0.001, f32::INFINITY) {
-        let t = hitt.p + hitt.normal + Vec3::random_in_hemisphere(&hitt.normal);
+    if let Some(hitt) = world.hit(r, 0.001, std::f32::INFINITY) {
+        // let t = hitt.p + hitt.normal + Vec3::random_in_hemisphere(&hitt.normal);
         if let Some(scatt) = hitt.material.scatter(r, &hitt) {
             let a = ray_color(&scatt.scattered, world, depth -1);
+            // let a = scatt.attenuation;
             let b = scatt.attenuation;
             return Color{
                 r: a.r * b.r,
@@ -146,8 +148,8 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 1.0;
-    let max_depth = 1;
+    let samples_per_pixel = 50.0;
+    let max_depth = 10;
     let mut data: Vec<u8> = Vec::new();
 
     // World
@@ -221,8 +223,8 @@ pub fn main_js() -> Result<(), JsValue> {
 
     // Your code goes here!
     // config variables
-    let width = 200;
-    let height = 100;
+    let width = 300;
+    let height = 150;
 
     //console::
     let document = web_sys::window().unwrap().document().unwrap();
