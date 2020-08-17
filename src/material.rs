@@ -3,7 +3,6 @@ use crate::hittable::HitRecord;
 use crate::color::Color;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
-use std::cmp;
 
 pub struct ScatterRecord {
     pub scattered: Ray,

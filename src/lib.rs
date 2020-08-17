@@ -10,6 +10,7 @@ pub mod material;
 
 use crate::camera::Camera;
 use crate::hittable_list::HittableList;
+use js_sys::Math;
 use crate::sphere::Sphere;
 use crate::hittable::Hittable;
 use crate::vec3::Vec3;
@@ -89,7 +90,7 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
     // Image
     let nx = width;
     let ny = height; 
-    let samples_per_pixel = 20.0;
+    let samples_per_pixel = 50.0;
     let max_depth = 50;
     let mut data: Vec<u8> = Vec::new();
 
@@ -102,15 +103,15 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
 
     let mut hitables: Vec<Box<dyn Hittable>> = Vec::new();
     hitables.push(Box::new(Sphere {
-        center: Vec3{x: 0.0, y: 0.0, z: -1.0},
-        radius: 0.5,
-        material: Box::new(material_center)
-    }));
-
-    hitables.push(Box::new(Sphere {
         center: Vec3{x: 0.0, y: -100.5, z: -1.0},
         radius: 100.0,
         material: Box::new(material_ground)
+    }));
+
+    hitables.push(Box::new(Sphere {
+        center: Vec3{x: 0.0, y: 0.0, z: -1.0},
+        radius: 0.5,
+        material: Box::new(material_center)
     }));
 
     hitables.push(Box::new(Sphere {
@@ -121,7 +122,7 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
 
     hitables.push(Box::new(Sphere {
         center: Vec3{x: -1.0, y: 0.0, z: -1.0},
-        radius: -0.4,
+        radius: -0.45,
         material: Box::new(material_left2)
     }));
 
@@ -131,10 +132,45 @@ fn plot(width: u32, height: u32) -> Vec<u8> {
         material: Box::new(material_right)
     }));
 
-    let world = HittableList{hitables};
 
+
+    // let R = Math::cos((std::f32::consts::PI/4.0).into()) as f32;
+    // let mut hitables: Vec<Box<dyn Hittable>> = Vec::new();
+
+    // let material_left   = Lambertian{ albedo: Color{r: 0.0, g: 0.0, b: 1.0 } };
+    // let material_right  = Lambertian{ albedo: Color{r: 1.0, g: 0.0, b: 0.0 } };
+    
+    // hitables.push(Box::new(Sphere {
+    //     center: Vec3{x: -R, y: 0.0, z: -1.0},
+    //     radius: R,
+    //     material: Box::new(material_left)
+    // }));
+
+    // hitables.push(Box::new(Sphere {
+    //     center: Vec3{x: R, y: 0.0, z: -1.0},
+    //     radius: R,
+    //     material: Box::new(material_right)
+    // }));
+
+
+
+
+
+    let world = HittableList{hitables};
+    let aspect_ratio = 3.0 / 2.0;
+    let lookfrom = Vec3{x: 3.0, y: 3.0, z: 2.0};
+    let lookat = Vec3{x: 0.0, y: 0.0, z: -1.0};
     // Camera
-    let cam = Camera::new();
+    let cam = Camera::new(
+            lookfrom,
+            lookat,
+            Vec3{x: 0.0, y: 1.0, z: 0.0},
+            20.0, 
+            aspect_ratio,
+            2.0,
+            (lookfrom - lookat).length()
+        );
+
     for nj in 0..ny {
         let j = ny - nj - 1;
         for i in 0..nx {
@@ -162,8 +198,8 @@ pub fn main_js() -> Result<(), JsValue> {
 
     // Your code goes here!
     // config variables
-    let width = 100;
-    let height = 50;
+    let width = 300;
+    let height = 200;
 
     //console::
     let document = web_sys::window().unwrap().document().unwrap();

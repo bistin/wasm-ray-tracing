@@ -84,6 +84,35 @@ impl Vec3 {
             return in_unit_sphere * -1.0;
         }
     }
+
+    /*
+    vec3 random_in_unit_disk() {
+        while (true) {
+            auto p = vec3(random_double(-1,1), random_double(-1,1), 0);
+            if (p.length_squared() >= 1) continue;
+            return p;
+        }
+    }
+    */
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = rand::thread_rng();
+        let mut p = Vec3 { 
+            x: rng.gen_range(-1.0, 1.0), 
+            y: rng.gen_range(-1.0, 1.0), 
+            z: 0.0
+        };
+        loop {
+            if p.squared_length() < 1.0 {
+                break;
+            } 
+            p = Vec3 { 
+                x: rng.gen_range(-1.0, 1.0), 
+                y: rng.gen_range(-1.0, 1.0), 
+                z: 0.0
+            };
+        }
+        return p;
+    }
 }
 
 impl Vec3 {
